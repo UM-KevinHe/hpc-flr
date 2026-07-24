@@ -8,36 +8,35 @@ Python fit of the same data agree to machine precision (see `tests/parity_with_r
 Use this if you work in Python; use [`../paraflr`](../paraflr) if you work in R.
 Neither depends on the other.
 
-## Requirements
-
-A C++ toolchain plus **Armadillo** (headers) and a BLAS/LAPACK. No CRAN/PyPI —
-you install from source in this repo.
-
-| Platform | Install the prerequisites |
-|---|---|
-| macOS | `brew install armadillo` (BLAS/LAPACK come from the Accelerate framework) |
-| Debian/Ubuntu | `sudo apt-get install libarmadillo-dev` |
-
-Python ≥ 3.8 and NumPy. The build uses `pybind11` (pulled in automatically).
-
 ## Install
 
-### Prebuilt wheel (no compiler needed)
+### Prebuilt wheel — no compiler needed (recommended)
 
-If a release provides a wheel for your platform, `pip` picks it automatically —
-no C++ toolchain, no Armadillo, no BLAS. Wheels are built for Windows, macOS
-(Intel + Apple Silicon), and Linux by the `wheels` GitHub Actions workflow and
-attached to each GitHub Release:
+Wheels for **Windows, macOS (Intel + Apple Silicon), and Linux** are attached to
+each [GitHub Release](https://github.com/UM-KevinHe/hpc-flr/releases). They need
+only **Python ≥ 3.8 and NumPy** — no C++ toolchain, no Armadillo, no BLAS
+(everything is bundled inside the wheel). Download the `.whl` matching your OS
+and Python version from the Releases page, then:
 
 ```bash
-pip install paraflr --no-index --find-links https://github.com/UM-KevinHe/hpc-flr/releases/latest
+pip install paraflr-0.1.0-cp311-cp311-macosx_11_0_arm64.whl   # example filename
 ```
 
-(or download the matching `.whl` from the Releases page and `pip install` it).
+Or let `pip` pick the right wheel from a release automatically:
+
+```bash
+pip install paraflr --find-links https://github.com/UM-KevinHe/hpc-flr/releases/expanded_assets/v0.1.0
+```
 
 ### From source
 
-Needs a C++ toolchain, Armadillo headers, and a BLAS/LAPACK (see Requirements):
+Building from source additionally needs a C++ toolchain, **Armadillo** headers,
+and a BLAS/LAPACK:
+
+| Platform | Install the build prerequisites |
+|---|---|
+| macOS | `brew install armadillo` (BLAS/LAPACK from the Accelerate framework) |
+| Debian/Ubuntu | `sudo apt-get install libarmadillo-dev` |
 
 ```bash
 pip install ./paraflr-py          # from the repository root

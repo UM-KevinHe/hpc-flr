@@ -58,9 +58,19 @@ intercept; records are sorted by provider internally. The estimates agree with
 
 ## `paraflr` (Python package)
 
-For Python users — the same estimator as the R package (shared C++ core),
-installed from source in this repo. Needs a C++ toolchain plus Armadillo
-(`brew install armadillo`, or `apt-get install libarmadillo-dev`).
+For Python users — the same estimator as the R package (shared C++ core).
+
+**Prebuilt wheel (recommended, no compiler needed).** Wheels for Windows, macOS
+(Intel + Apple Silicon), and Linux are attached to each
+[release](https://github.com/UM-KevinHe/hpc-flr/releases); download the one for
+your OS + Python version and install it (BLAS and everything else is bundled):
+
+```bash
+pip install paraflr-0.1.0-cp311-cp311-macosx_11_0_arm64.whl   # example filename
+```
+
+**From source** (needs a C++ toolchain plus Armadillo — `brew install armadillo`
+or `apt-get install libarmadillo-dev`):
 
 ```bash
 pip install ./paraflr-py
