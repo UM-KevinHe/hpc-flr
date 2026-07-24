@@ -70,8 +70,7 @@
           "cutoff": {"type": "integer", "description": "Drop providers with fewer than this many records. Default 0 (keep all)."},
           "tol": {"type": "number", "description": "Convergence tolerance. Default 1e-5."},
           "max_iter": {"type": "integer", "description": "Maximum iterations. Default 10000."},
-          "bound": {"type": "number", "description": "Bound on the step size. Default 10."},
-          "backtrack": {"type": "boolean", "description": "Use backtracking line search. Default false."}
+          "bound": {"type": "number", "description": "Bound on the step size. Default 10."}
         },
         "required": ["data_path", "y_expr", "z_expr", "id_expr"]
       }

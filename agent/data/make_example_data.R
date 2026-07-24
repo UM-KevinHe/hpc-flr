@@ -3,11 +3,8 @@
 #
 #   Rscript agent/data/make_example_data.R
 #
-# The Medicare claims data in the paper cannot be redistributed, so the agent
-# and its evaluation run on simulated provider-profiling data instead. Both
-# files are produced by calling the agent's own simulate_provider_data tool
-# through the same JSON handshake the agent uses, so the bundled data has the
-# same provenance as anything the agent generates at run time.
+# The example data is simulated. Both files are produced by the agent's own
+# simulate_provider_data tool through the same JSON handshake the agent uses.
 #
 #   ExampleProviders.rda      50 providers, ~80 records each, 20% event rate
 #                             — the ordinary profiling case.

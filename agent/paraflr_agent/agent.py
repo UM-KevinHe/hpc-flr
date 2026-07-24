@@ -13,8 +13,7 @@ Talks to any OpenAI-compatible Chat Completions endpoint (vLLM with
         -> AgentResponse (text + trace + full results)
 
 The model routes and explains. It never computes: every number in the answer
-came out of paraflr. That division is the point of the harness, and it is
-what the evaluation in ``agent/eval`` measures.
+came out of paraflr.
 
 Tests can inject a stub via ``client=`` — anything with
 ``chat.completions.create`` — and run the whole loop without a GPU.

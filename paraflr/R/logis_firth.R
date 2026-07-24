@@ -1,5 +1,5 @@
 logis_firth <- function(Y, Z, ID, cutoff = 0, max.iter = 10000, tol = 1e-5,
-                        bound = 10, backtrack = FALSE, threads = 1, message = FALSE) {
+                        bound = 10, stop.crit = "beta", threads = 1, message = FALSE) {
   Z <- as.matrix(Z)
   Z.char <- colnames(Z)
   if (is.null(Z.char)) {
@@ -29,7 +29,8 @@ logis_firth <- function(Y, Z, ID, cutoff = 0, max.iter = 10000, tol = 1e-5,
 
   fit <- logis_firth_prov(as.matrix(data[[Y.char]]), Zmat, n.prov, gamma, beta,
                           n.obs, m, threads = threads, tol = tol, max_iter = max.iter,
-                          bound = bound, message = message, backtrack = backtrack)
+                          bound = bound, message = message, stop = stop.crit,
+                          need_trace = FALSE)
 
   gamma <- as.numeric(fit$gamma)
   beta <- as.numeric(fit$beta)
@@ -42,6 +43,7 @@ logis_firth <- function(Y, Z, ID, cutoff = 0, max.iter = 10000, tol = 1e-5,
 
   char_list <- list(Y.char = Y.char, prov.char = prov.char, Z.char = Z.char)
   structure(list(data = data, char_list = char_list, beta = beta, gamma = gamma,
-                 neg2Loglkd = neg2Loglkd),
+                 neg2Loglkd = neg2Loglkd, loglik = as.numeric(fit$loglik),
+                 iter = as.integer(fit$iter)),
             class = "logis_firth")
 }

@@ -1,7 +1,5 @@
-"""paraflr (Python) — parallel Firth-corrected logistic regression.
-
-Python front end to the same C++ core the R package uses (``src/firth_core.hpp``,
-identical math), so a Python fit agrees with the R fit to numerical tolerance.
+"""paraflr (Python) — parallel Firth-corrected logistic regression with
+high-dimensional provider effects.
 
     import numpy as np, paraflr
     fit = paraflr.logis_firth(Y, Z, ID, threads=4)
@@ -16,7 +14,7 @@ import numpy as np
 from . import _core
 
 __all__ = ["logis_firth", "test_gamma_single"]
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 
 def _erfc(x: float) -> float:
@@ -36,7 +34,7 @@ def _chisq1_sf(x: float) -> float:
 
 
 def logis_firth(Y, Z, ID, cutoff=0, max_iter=10000, tol=1e-5, bound=10.0,
-                backtrack=False, threads=1, z_names=None):
+                stop_crit="beta", threads=1, z_names=None):
     """Fit the model with provider-specific intercepts and no global intercept.
 
     Mirrors the R ``logis_firth()``: records are sorted by provider, providers
@@ -77,7 +75,8 @@ def logis_firth(Y, Z, ID, cutoff=0, max_iter=10000, tol=1e-5, bound=10.0,
 
     fit = _core.logis_firth_prov(
         Ys, np.asfortranarray(Zs), n_prov, gamma0, beta0,
-        n_obs, m, threads, tol, max_iter, bound, backtrack)
+        n_obs, m, threads=threads, tol=tol, max_iter=max_iter, bound=bound,
+        message=False, stop=stop_crit, need_trace=False)
     gamma = np.asarray(fit["gamma"], dtype=float)
     beta = np.asarray(fit["beta"], dtype=float)
 
@@ -91,7 +90,8 @@ def logis_firth(Y, Z, ID, cutoff=0, max_iter=10000, tol=1e-5, bound=10.0,
         "neg2Loglkd": float(neg2),
         "z_names": list(z_names),
         "prov_ids": prov_ids,
-        "iters": int(fit["iters"]),
+        "iter": int(fit["iter"]),
+        "loglik": float(fit["loglik"]),
         # kept for test_gamma_single (sorted / filtered, provider-contiguous):
         "_Y": Ys, "_Z": np.ascontiguousarray(Zs), "_n_prov": n_prov,
     }

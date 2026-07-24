@@ -1,14 +1,10 @@
-// bindings_py.cpp — pybind11 wrapper around the shared flr:: core.
-//
-// The Python analogue of paraflr/src/bindings via Rcpp. NumPy <-> Armadillo
-// conversion is done by hand (a few lines) to avoid an extra dependency:
-//   * matrix inputs are forced to Fortran (column-major) order so their memory
-//     layout matches Armadillo directly;
-//   * vectors are 1-D and order-agnostic.
+// bindings_py.cpp — pybind11 wrapper around the flr:: core. Matrix inputs are
+// forced to Fortran (column-major) order to match Armadillo.
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 #include <armadillo>
 #include <cstring>
+#include <string>
 #include "firth_core.hpp"
 
 namespace py = pybind11;
@@ -43,34 +39,43 @@ PYBIND11_MODULE(_core, m) {
   m.doc() = "paraflr C++ core (shared with the R package) via pybind11";
 
   m.def("loglkd", [](ArrC Y, ArrC Z_beta, ArrC gamma_obs) {
-    return flr::loglkd(to_vec(Y), to_vec(Z_beta), to_vec(gamma_obs));
+    return flr::Loglkd(to_vec(Y), to_vec(Z_beta), to_vec(gamma_obs));
   });
 
   m.def("logis_firth_prov",
     [](ArrC Y, ArrF Z, ArrC n_prov, ArrC gamma, ArrC beta,
        int n_obs, int m, int threads, double tol, int max_iter,
-       double bound, bool backtrack) {
+       double bound, bool message, const std::string& stop, bool need_trace) {
+      arma::vec Yv = to_vec(Y), npv = to_vec(n_prov),
+                gv = to_vec(gamma), bv = to_vec(beta);
+      arma::mat Zv = to_mat(Z);
       flr::FirthFit f = flr::logis_firth_prov(
-          to_vec(Y), to_mat(Z), to_vec(n_prov), to_vec(gamma), to_vec(beta),
-          n_obs, m, threads, tol, max_iter, bound, backtrack, nullptr);
+          Yv, Zv, npv, gv, bv, n_obs, m, threads, tol, max_iter, bound,
+          message, stop, need_trace);
       py::dict d;
-      d["gamma"] = to_np(f.gamma);
-      d["beta"]  = to_np(f.beta);
-      d["iters"] = f.iters;
+      d["gamma"]  = to_np(f.gamma);
+      d["beta"]   = to_np(f.beta);
+      d["loglik"] = f.loglik;
+      d["iter"]   = f.iter;
+      d["crit"]   = f.crit;
       return d;
     },
     py::arg("Y"), py::arg("Z"), py::arg("n_prov"), py::arg("gamma"),
     py::arg("beta"), py::arg("n_obs"), py::arg("m"), py::arg("threads") = 1,
-    py::arg("tol") = 1e-5, py::arg("max_iter") = 10000, py::arg("bound") = 10.0,
-    py::arg("backtrack") = false);
+    py::arg("tol") = 1e-5, py::arg("max_iter") = 100, py::arg("bound") = 10.0,
+    py::arg("message") = false, py::arg("stop") = "beta",
+    py::arg("need_trace") = false);
 
   m.def("loglkd_firth", [](ArrC Y, ArrF Z, ArrC n_prov, ArrC gamma, ArrC beta) {
-    return flr::loglkd_firth(to_vec(Y), to_mat(Z), to_vec(n_prov),
-                             to_vec(gamma), to_vec(beta));
+    arma::vec Yv = to_vec(Y), npv = to_vec(n_prov),
+              gv = to_vec(gamma), bv = to_vec(beta);
+    arma::mat Zv = to_mat(Z);
+    return flr::Loglkd_firth(Yv, Zv, npv, gv, bv);
   });
 
   m.def("wald_gamma", [](ArrF Z, ArrC p, ArrC n_prov, ArrC parm_indices) {
-    return to_np(flr::wald_gamma(to_mat(Z), to_vec(p), to_vec(n_prov),
-                                 to_vec(parm_indices)));
+    arma::mat Zv = to_mat(Z);
+    arma::vec pv = to_vec(p), npv = to_vec(n_prov), piv = to_vec(parm_indices);
+    return to_np(flr::wald_gamma(Zv, pv, npv, piv));
   });
 }

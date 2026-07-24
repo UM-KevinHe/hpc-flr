@@ -114,8 +114,7 @@ fit_controls <- function(input) {
     cutoff    = num(input$cutoff, 0),
     tol       = num(input$tol, 1e-5),
     max.iter  = if (is.null(input$max_iter)) 10000L else as.integer(input$max_iter),
-    bound     = num(input$bound, 10),
-    backtrack = if (is.null(input$backtrack)) FALSE else as.logical(input$backtrack)
+    bound     = num(input$bound, 10)
   )
 }
 
@@ -123,7 +122,7 @@ run_fit <- function(fields, ctl) {
   paraflr::logis_firth(
     Y = fields$Y, Z = fields$Z, ID = fields$ID,
     cutoff = ctl$cutoff, max.iter = ctl$max.iter, tol = ctl$tol,
-    bound = ctl$bound, backtrack = ctl$backtrack, threads = ctl$threads,
+    bound = ctl$bound, threads = ctl$threads,
     message = FALSE
   )
 }

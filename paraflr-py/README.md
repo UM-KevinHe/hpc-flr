@@ -1,12 +1,9 @@
 # `paraflr` (Python)
 
 A Python build of **ParaFLR** — parallel Firth-corrected logistic regression
-with high-dimensional provider effects. It calls the **same C++ core as the R
-package** (`cpp/firth_core.hpp`, compiled here via pybind11), so an R fit and a
-Python fit of the same data agree to machine precision (see `tests/parity_with_r.py`).
+with high-dimensional provider effects.
 
 Use this if you work in Python; use [`../paraflr`](../paraflr) if you work in R.
-Neither depends on the other.
 
 ## Install
 
@@ -19,13 +16,13 @@ only **Python ≥ 3.8 and NumPy** — no C++ toolchain, no Armadillo, no BLAS
 and Python version from the Releases page, then:
 
 ```bash
-pip install paraflr-0.1.0-cp311-cp311-macosx_11_0_arm64.whl   # example filename
+pip install paraflr-0.2.0-cp311-cp311-macosx_11_0_arm64.whl   # example filename
 ```
 
 Or let `pip` pick the right wheel from a release automatically:
 
 ```bash
-pip install paraflr --find-links https://github.com/UM-KevinHe/hpc-flr/releases/expanded_assets/v0.1.0
+pip install paraflr --find-links https://github.com/UM-KevinHe/hpc-flr/releases/expanded_assets/v0.2.0
 ```
 
 ### From source
@@ -71,13 +68,3 @@ paraflr.test_gamma_single(fit, method="lrt", firth=True)
 ```
 
 The API mirrors the R package's `logis_firth()` and `test_gamma.single()`.
-
-## Verifying R/Python agreement
-
-```bash
-python tests/parity_with_r.py
-# set PARAFLR_RLIB=/path/to/Rlib if paraflr (R) is in a non-default library
-```
-
-Fits the same data in both languages and checks the coefficients match. It
-skips (does not fail) when R or the R `paraflr` package is not installed.

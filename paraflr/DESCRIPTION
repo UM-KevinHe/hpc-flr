@@ -1,7 +1,7 @@
 Package: paraflr
 Type: Package
 Title: Parallel Firth-Corrected Logistic Regression for Provider Profiling
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: c(
     person("Yubo", "Shao", email = "ybshao@umich.edu", role = c("aut", "cre")),
     person("Kevin", "He", role = "aut"))

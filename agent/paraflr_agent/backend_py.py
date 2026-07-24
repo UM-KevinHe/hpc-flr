@@ -96,7 +96,6 @@ def _fit(pf, y, Z, idv, payload, z_names):
         max_iter=int(payload.get("max_iter", 10000)),
         tol=float(payload.get("tol", 1e-5)),
         bound=float(payload.get("bound", 10)),
-        backtrack=bool(payload.get("backtrack", False)),
         threads=int(payload.get("threads", 1)),
         z_names=z_names)
 

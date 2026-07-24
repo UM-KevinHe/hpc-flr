@@ -2,9 +2,7 @@
 # simulate_provider_data.R — dispatcher for the simulate_provider_data tool.
 #
 # Generates clustered binary data with provider-specific intercepts and writes
-# it to an .rda the other tools can read. This exists because the Medicare
-# claims data behind the paper cannot be shared: without it there is no way to
-# demonstrate or evaluate the agent end to end.
+# it to an .rda the other tools can read, for when no dataset is at hand.
 #
 # input.json : {"n_providers", "n_per_provider", "n_covariates", "event_rate",
 #               "gamma_sd", "seed", "out_path"}

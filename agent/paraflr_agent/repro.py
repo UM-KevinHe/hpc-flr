@@ -80,7 +80,7 @@ def _fit_block(args: dict, var: str) -> list:
     ctl = []
     for key, arg in (("cutoff", "cutoff"), ("tol", "tol"),
                      ("max.iter", "max_iter"), ("bound", "bound"),
-                     ("backtrack", "backtrack"), ("threads", "threads")):
+                     ("threads", "threads")):
         if args.get(arg) is not None:
             ctl.append("{} = {}".format(key, _r_literal(args[arg])))
     ctl_str = (", " + ", ".join(ctl)) if ctl else ""

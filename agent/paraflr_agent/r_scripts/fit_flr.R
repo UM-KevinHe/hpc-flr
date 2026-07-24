@@ -5,7 +5,7 @@
 # and no global intercept, optionally across `threads` OpenMP threads.
 #
 # input.json : {"data_path", "y_expr", "z_expr", "id_expr",
-#               "threads", "cutoff", "tol", "max_iter", "bound", "backtrack"}
+#               "threads", "cutoff", "tol", "max_iter", "bound"}
 # output.json: {"status":"ok", "beta": {...}, "gamma": {...}, ...}
 
 .script_dir <- function() {

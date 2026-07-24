@@ -1,21 +1,12 @@
 """Build the paraflr C++ core as a Python extension via pybind11.
 
-Requires a C++ toolchain and Armadillo (headers) plus a BLAS/LAPACK:
+Requires a C++ toolchain and Armadillo headers plus a BLAS/LAPACK:
   * macOS:  brew install armadillo         (BLAS/LAPACK = Accelerate framework)
   * Debian: apt-get install libarmadillo-dev
-We use Armadillo header-only (ARMA_DONT_USE_WRAPPER) and link BLAS/LAPACK
-directly — only dense chol/solve/inv are used, which BLAS/LAPACK alone provide.
-This avoids the system libarmadillo runtime, whose optional SuperLU/ARPACK
-links are brittle across package upgrades.
 
-CI overrides (used to build portable wheels; a normal local install ignores
-them and falls back to the platform default):
-  PARAFLR_ARMADILLO_INCLUDE  extra include dir holding <armadillo>
-  PARAFLR_BLAS_INCLUDE       extra include dir for the BLAS headers
-  PARAFLR_BLAS_LIBDIR        library dir for the BLAS/LAPACK to link
-  PARAFLR_BLAS_LIBS          comma-separated lib names (e.g. "openblas")
-  PARAFLR_BLAS_FRAMEWORK     macOS framework to link (e.g. "Accelerate")
-  PARAFLR_OPENMP=1           enable OpenMP (off by default; serial == same result)
+Environment overrides (used by the wheel CI; a local install falls back to
+platform defaults): PARAFLR_ARMADILLO_INCLUDE, PARAFLR_BLAS_INCLUDE,
+PARAFLR_BLAS_LIBDIR, PARAFLR_BLAS_LIBS, PARAFLR_BLAS_FRAMEWORK, PARAFLR_OPENMP=1.
 """
 import os
 import sys

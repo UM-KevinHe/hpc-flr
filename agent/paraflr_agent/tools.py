@@ -10,8 +10,8 @@ Six tools sit on top of the two functions paraflr exports:
     start_analysis     the wizard, for requests too vague to route
 
 ``dispatch(name, **kwargs)`` is the only way a tool ever runs — from the
-agent loop, from the evaluation harnesses, or from a direct call. The
-language model never reaches R except through here.
+agent loop or a direct call. The language model never reaches R except
+through here.
 """
 from __future__ import annotations
 

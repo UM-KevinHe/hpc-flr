@@ -4,23 +4,19 @@ High-performance computing implementations of Firth bias-reduced logistic
 regression (FLR) with high-dimensional provider effects, for provider profiling
 with massive clustered healthcare data.
 
-This repository accompanies the paper *High-Performance Computing Approaches for
-Provider Profiling with Massive Clustered Healthcare Data* and provides:
+This repository provides:
 
 | Path | Language | What it is |
 |------|----------|------------|
 | [`paraflr/`](paraflr) | R + C++ (RcppArmadillo/OpenMP) | **ParaFLR (R)**: shared-memory parallel FLR fitting, plus Wald / score / penalized likelihood-ratio tests for provider effects. |
-| [`paraflr-py/`](paraflr-py) | Python + C++ (pybind11/Armadillo) | **ParaFLR (Python)**: the same estimator for Python users — compiles the same C++ core and matches the R package to machine precision. |
+| [`paraflr-py/`](paraflr-py) | Python + C++ (pybind11/Armadillo) | **ParaFLR (Python)**: the same estimator, for Python users. |
 | [`disflr/`](disflr) | Scala (Apache Spark) | **DisFLR**: distributed FLR for data exceeding single-node memory — an exact iterative variant (`MultiShot`) and a communication-efficient divide-and-combine variant (`OneShot`). |
 
-`paraflr` (R) and `paraflr-py` (Python) are the **same estimator** — one shared
-C++ core, two thin language bindings — so you install whichever fits your
-environment. `disflr` targets the distributed setting. All are built and run
-independently.
+`paraflr` (R) and `paraflr-py` (Python) provide the same estimator — install
+whichever fits your environment; `disflr` targets the distributed setting.
 
 The optional [`agent/`](agent) directory is a natural-language front end to
-`paraflr` driven by a locally served 7B model — it runs on **either the R or the
-Python backend** — with the evaluation behind it. Nothing else depends on it.
+`paraflr`, running on either the R or the Python backend.
 
 ## `paraflr` (R package)
 
@@ -53,8 +49,7 @@ test_gamma.single(fit, methods = "lrt", firth = TRUE)
 ```
 
 `logis_firth()` fits the model with provider-specific intercepts and no global
-intercept; records are sorted by provider internally. The estimates agree with
-`logistf` and `brglm2` to within numerical tolerance.
+intercept; records are sorted by provider internally.
 
 ## `paraflr` (Python package)
 
@@ -66,13 +61,13 @@ For Python users — the same estimator as the R package (shared C++ core).
 your OS + Python version and install it (BLAS and everything else is bundled):
 
 ```bash
-pip install paraflr-0.1.0-cp311-cp311-macosx_11_0_arm64.whl   # example filename
+pip install paraflr-0.2.0-cp311-cp311-macosx_11_0_arm64.whl   # example filename
 ```
 
 Or let `pip` pick the right wheel for your OS + Python automatically:
 
 ```bash
-pip install paraflr --find-links https://github.com/UM-KevinHe/hpc-flr/releases/expanded_assets/v0.1.0
+pip install paraflr --find-links https://github.com/UM-KevinHe/hpc-flr/releases/expanded_assets/v0.2.0
 ```
 
 **From source** (needs a C++ toolchain plus Armadillo — `brew install armadillo`
@@ -94,10 +89,6 @@ fit["gamma"]       # provider effects
 paraflr.test_gamma_single(fit, method="score")
 paraflr.test_gamma_single(fit, method="lrt", firth=True)
 ```
-
-A Python fit matches the R fit to machine precision; see
-[`paraflr-py/`](paraflr-py) for the build details and the parity check
-against the R package.
 
 ## `disflr` (Scala / Spark)
 
@@ -126,6 +117,5 @@ column equal to `1`.
 
 ## Data
 
-The Medicare administrative claims data used in the paper cannot be shared under
-the CMS data use agreement. Both components run on any suitably formatted
-clustered binary/binomial dataset.
+Runs on any clustered binary/binomial dataset: a binary outcome, a covariate
+matrix, and a provider identifier per record.
