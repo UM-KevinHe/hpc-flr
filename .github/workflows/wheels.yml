@@ -40,6 +40,9 @@ jobs:
         run: |
           python paraflr-py/tools/fetch_armadillo.py C:/deps/arma
           python paraflr-py/tools/fetch_openblas_windows.py C:/deps/openblas
+          # Put the OpenBLAS DLL dir on PATH so the wheel-repair step
+          # (delvewheel) finds libopenblas.dll and bundles it into the wheel.
+          echo "C:/deps/openblas/bin" >> "$GITHUB_PATH"
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.21.3
@@ -69,16 +72,14 @@ jobs:
           CIBW_BEFORE_ALL_MACOS: brew install armadillo
           CIBW_ENVIRONMENT_MACOS: PARAFLR_BLAS_FRAMEWORK=Accelerate
 
-          # --- Windows: deps were fetched to C:/deps by the host step above.
-          #     Point the build at them; delvewheel bundles the OpenBLAS DLL.
+          # --- Windows: deps were fetched to C:/deps by the host step above,
+          #     and C:/deps/openblas/bin is on PATH so cibuildwheel's default
+          #     delvewheel repair finds and bundles libopenblas.dll.
           CIBW_ENVIRONMENT_WINDOWS: >
             PARAFLR_ARMADILLO_INCLUDE=C:/deps/arma/include
             PARAFLR_BLAS_INCLUDE=C:/deps/openblas/include
             PARAFLR_BLAS_LIBDIR=C:/deps/openblas/lib
             PARAFLR_BLAS_LIBS=libopenblas
-          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >
-            delvewheel repair --add-path C:/deps/openblas/bin
-            -w {dest_dir} {wheel}
 
       - uses: actions/upload-artifact@v4
         with:
