@@ -22,7 +22,9 @@ jobs:
     strategy:
       fail-fast: false     # one OS failing must not cancel the others' wheels
       matrix:
-        os: [ubuntu-latest, macos-13, macos-14, windows-latest]
+        # No macos-13: the Intel-Mac runners are scarce and can queue for hours.
+        # The Apple-Silicon runner (macos-14) cross-builds the x86_64 wheel too.
+        os: [ubuntu-latest, macos-14, windows-latest]
     steps:
       - uses: actions/checkout@v4
 
@@ -67,8 +69,10 @@ jobs:
           CIBW_ENVIRONMENT_LINUX: PARAFLR_BLAS_LIBS=openblas
 
           # --- macOS: Armadillo headers from Homebrew, BLAS/LAPACK from the
-          #     Accelerate framework. Each runner builds its native arch
-          #     (macos-13 -> x86_64, macos-14 -> arm64).
+          #     Accelerate framework (universal). The Apple-Silicon runner
+          #     cross-builds BOTH arches, so users on Intel and Apple Silicon
+          #     both get a wheel.
+          CIBW_ARCHS_MACOS: "x86_64 arm64"
           CIBW_BEFORE_ALL_MACOS: brew install armadillo
           CIBW_ENVIRONMENT_MACOS: PARAFLR_BLAS_FRAMEWORK=Accelerate
 
