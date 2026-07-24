@@ -26,6 +26,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Windows has no system package manager for these, and cibuildwheel's
+      # before_all shell does not reliably have `python` on PATH — so fetch the
+      # Windows build deps here, on the host, with a shell and python we control.
+      # Windows wheels build on the host (not a container), so C:/deps persists.
+      - uses: actions/setup-python@v5
+        if: runner.os == 'Windows'
+        with:
+          python-version: '3.12'
+      - name: Fetch Windows build deps (Armadillo headers + OpenBLAS)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          python paraflr-py/tools/fetch_armadillo.py C:/deps/arma
+          python paraflr-py/tools/fetch_openblas_windows.py C:/deps/openblas
+
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.21.3
         with:
@@ -51,14 +66,8 @@ jobs:
           CIBW_BEFORE_ALL_MACOS: brew install armadillo
           CIBW_ENVIRONMENT_MACOS: PARAFLR_BLAS_FRAMEWORK=Accelerate
 
-          # --- Windows: no system package manager for these, so download a
-          #     prebuilt OpenBLAS + the Armadillo headers (the Windows runner
-          #     has `python` on PATH). delvewheel bundles the OpenBLAS DLL.
-          #     Use FORWARD slashes: cibuildwheel runs before_all in bash, which
-          #     would eat backslashes as escapes (Python + MSVC accept `/`).
-          CIBW_BEFORE_ALL_WINDOWS: >
-            python {project}/tools/fetch_armadillo.py C:/deps/arma &&
-            python {project}/tools/fetch_openblas_windows.py C:/deps/openblas
+          # --- Windows: deps were fetched to C:/deps by the host step above.
+          #     Point the build at them; delvewheel bundles the OpenBLAS DLL.
           CIBW_ENVIRONMENT_WINDOWS: >
             PARAFLR_ARMADILLO_INCLUDE=C:/deps/arma/include
             PARAFLR_BLAS_INCLUDE=C:/deps/openblas/include
