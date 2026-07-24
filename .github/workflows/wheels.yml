@@ -54,16 +54,18 @@ jobs:
           # --- Windows: no system package manager for these, so download a
           #     prebuilt OpenBLAS + the Armadillo headers (the Windows runner
           #     has `python` on PATH). delvewheel bundles the OpenBLAS DLL.
+          #     Use FORWARD slashes: cibuildwheel runs before_all in bash, which
+          #     would eat backslashes as escapes (Python + MSVC accept `/`).
           CIBW_BEFORE_ALL_WINDOWS: >
-            python {project}\tools\fetch_armadillo.py C:\deps\arma &&
-            python {project}\tools\fetch_openblas_windows.py C:\deps\openblas
+            python {project}/tools/fetch_armadillo.py C:/deps/arma &&
+            python {project}/tools/fetch_openblas_windows.py C:/deps/openblas
           CIBW_ENVIRONMENT_WINDOWS: >
-            PARAFLR_ARMADILLO_INCLUDE=C:\deps\arma\include
-            PARAFLR_BLAS_INCLUDE=C:\deps\openblas\include
-            PARAFLR_BLAS_LIBDIR=C:\deps\openblas\lib
+            PARAFLR_ARMADILLO_INCLUDE=C:/deps/arma/include
+            PARAFLR_BLAS_INCLUDE=C:/deps/openblas/include
+            PARAFLR_BLAS_LIBDIR=C:/deps/openblas/lib
             PARAFLR_BLAS_LIBS=libopenblas
           CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >
-            delvewheel repair --add-path C:\deps\openblas\bin
+            delvewheel repair --add-path C:/deps/openblas/bin
             -w {dest_dir} {wheel}
 
       - uses: actions/upload-artifact@v4
