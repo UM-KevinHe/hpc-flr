@@ -49,6 +49,9 @@ jobs:
         env:
           CIBW_BUILD: "cp38-* cp39-* cp310-* cp311-* cp312-*"
           CIBW_SKIP: "*-musllinux* *_i686 pp*"
+          # 64-bit only: the downloaded OpenBLAS is x64, and 32-bit Windows is
+          # obsolete. Without this cibuildwheel also tries cp3x-win32 and fails.
+          CIBW_ARCHS_WINDOWS: AMD64
 
           # --- Linux: AlmaLinux 8 image (manylinux2014/CentOS 7 is EOL, its
           #     package mirrors are dead). Armadillo headers + OpenBLAS
