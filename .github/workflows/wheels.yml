@@ -35,26 +35,25 @@ jobs:
           CIBW_BUILD: "cp38-* cp39-* cp310-* cp311-* cp312-*"
           CIBW_SKIP: "*-musllinux* *_i686 pp*"
 
-          # --- Linux: OpenBLAS (BLAS+LAPACK) from the manylinux container's
-          #     package manager; Armadillo headers downloaded (header-only).
+          # --- Linux: AlmaLinux 8 image (manylinux2014/CentOS 7 is EOL, its
+          #     package mirrors are dead). Armadillo headers + OpenBLAS
+          #     (BLAS+LAPACK) both come from the package manager — no download,
+          #     no `python` needed in this step.
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
           CIBW_BEFORE_ALL_LINUX: >
-            (yum install -y epel-release || dnf install -y epel-release || true) &&
-            (yum install -y openblas-devel || dnf install -y openblas-devel) &&
-            python {project}/tools/fetch_armadillo.py /deps/arma
-          CIBW_ENVIRONMENT_LINUX: >
-            PARAFLR_ARMADILLO_INCLUDE=/deps/arma/include
-            PARAFLR_BLAS_LIBS=openblas
+            dnf install -y epel-release &&
+            dnf install -y armadillo-devel openblas-devel
+          CIBW_ENVIRONMENT_LINUX: PARAFLR_BLAS_LIBS=openblas
 
-          # --- macOS: Accelerate provides BLAS/LAPACK; download Armadillo.
-          CIBW_ARCHS_MACOS: "x86_64 arm64"
-          CIBW_BEFORE_ALL_MACOS: >
-            python {project}/tools/fetch_armadillo.py /tmp/deps/arma
-          CIBW_ENVIRONMENT_MACOS: >
-            PARAFLR_ARMADILLO_INCLUDE=/tmp/deps/arma/include
-            PARAFLR_BLAS_FRAMEWORK=Accelerate
+          # --- macOS: Armadillo headers from Homebrew, BLAS/LAPACK from the
+          #     Accelerate framework. Each runner builds its native arch
+          #     (macos-13 -> x86_64, macos-14 -> arm64).
+          CIBW_BEFORE_ALL_MACOS: brew install armadillo
+          CIBW_ENVIRONMENT_MACOS: PARAFLR_BLAS_FRAMEWORK=Accelerate
 
-          # --- Windows: download prebuilt OpenBLAS + Armadillo headers.
-          #     delvewheel bundles the OpenBLAS DLL into the wheel.
+          # --- Windows: no system package manager for these, so download a
+          #     prebuilt OpenBLAS + the Armadillo headers (the Windows runner
+          #     has `python` on PATH). delvewheel bundles the OpenBLAS DLL.
           CIBW_BEFORE_ALL_WINDOWS: >
             python {project}\tools\fetch_armadillo.py C:\deps\arma &&
             python {project}\tools\fetch_openblas_windows.py C:\deps\openblas
