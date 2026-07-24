@@ -69,6 +69,12 @@ your OS + Python version and install it (BLAS and everything else is bundled):
 pip install paraflr-0.1.0-cp311-cp311-macosx_11_0_arm64.whl   # example filename
 ```
 
+Or let `pip` pick the right wheel for your OS + Python automatically:
+
+```bash
+pip install paraflr --find-links https://github.com/UM-KevinHe/hpc-flr/releases/expanded_assets/v0.1.0
+```
+
 **From source** (needs a C++ toolchain plus Armadillo — `brew install armadillo`
 or `apt-get install libarmadillo-dev`):
 
