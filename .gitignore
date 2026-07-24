@@ -1,0 +1,37 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.positai
+.DS_Store
+
+# R / C++ build artifacts
+paraflr/src/*.o
+paraflr/src/*.so
+paraflr/src/*.dll
+*.Rcheck/
+*.tar.gz
+
+# Python package (paraflr-py) build artifacts — users compile from source
+*.so
+*.o
+build/
+*.egg-info/
+
+# Agent (Python)
+__pycache__/
+*.pyc
+.pytest_cache/
+# Private, machine-specific notes (GL runbook with real account/paths) — never commit
+*.local.md
+# Evaluation output is a record of a specific run on specific hardware;
+# commit it deliberately, not by accident.
+agent/eval/eval_out/
+
+# Scala / sbt build artifacts
+disflr/target/
+disflr/project/target/
+*.class
+.bloop/
+.metals/
+.bsp/

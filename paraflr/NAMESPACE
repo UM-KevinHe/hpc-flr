@@ -1,0 +1,5 @@
+useDynLib(paraflr, .registration = TRUE)
+importFrom(Rcpp, evalCpp)
+importFrom(stats, median, pchisq, plogis, pnorm)
+export(logis_firth)
+export(test_gamma.single)

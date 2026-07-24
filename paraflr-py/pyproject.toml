@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61", "pybind11>=2.10", "numpy"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "paraflr"
+version = "0.1.0"
+description = "Parallel Firth-corrected logistic regression for provider profiling (Python build of the paraflr C++ core, shared with the R package)."
+requires-python = ">=3.8"
+dependencies = ["numpy>=1.19"]
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[tool.setuptools]
+packages = ["paraflr"]

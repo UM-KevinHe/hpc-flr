@@ -1,0 +1,21 @@
+Package: paraflr
+Type: Package
+Title: Parallel Firth-Corrected Logistic Regression for Provider Profiling
+Version: 0.1.0
+Authors@R: c(
+    person("Yubo", "Shao", email = "ybshao@umich.edu", role = c("aut", "cre")),
+    person("Kevin", "He", role = "aut"))
+Description: Shared-memory parallel Firth bias-reduced logistic regression with
+    high-dimensional provider effects (ParaFLR), together with Wald, score, and
+    penalised likelihood-ratio tests for a single provider effect. The heavy
+    computation is implemented in C++ via RcppArmadillo and parallelised with
+    OpenMP.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Imports:
+    Rcpp (>= 1.0.0)
+LinkingTo:
+    Rcpp,
+    RcppArmadillo
+SystemRequirements: GNU make, OpenMP
+RoxygenNote: 7.3.0

@@ -1,0 +1,135 @@
+[
+  {
+    "type": "function",
+    "function": {
+      "name": "inspect_data",
+      "description": "Describe the structure of an .rda / .rds / .csv data file and report a best guess at which fields hold the binary outcome, the covariate matrix, and the provider identifier. Reads metadata only, so it is safe on very large files. Call this when a field name is unknown or a tool reported a field-name error.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data_path": {
+            "type": "string",
+            "description": "Absolute path to the data file (.rda, .RData, .rds, or .csv)."
+          }
+        },
+        "required": ["data_path"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "start_analysis",
+      "description": "The wizard. Call this ONLY when a request is too vague to route: no data, no stated goal, e.g. 'help me with my provider data'. It returns the questions to ask the user. Never call it for a request that already names a fit, a test, or a benchmark.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "user_language": {
+            "type": "string",
+            "enum": ["en", "zh"],
+            "description": "Language to ask the questions in. Match the user's own language."
+          }
+        },
+        "required": []
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "simulate_provider_data",
+      "description": "Generate a clustered binary dataset with provider-specific intercepts and save it as an .rda file. Use this when the user has no data and wants a demonstration or a scaling test. Returns the file path and the exact field expressions the other tools need.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "n_providers": {"type": "integer", "description": "Number of providers (clusters). Default 50."},
+          "n_per_provider": {"type": "integer", "description": "Mean records per provider; actual sizes vary. Default 80."},
+          "n_covariates": {"type": "integer", "description": "Number of covariates. Default 5."},
+          "event_rate": {"type": "number", "description": "Target marginal event rate, strictly between 0 and 1. Default 0.2. Use a small value (e.g. 0.02) to create providers with no events, where the Firth correction matters."},
+          "gamma_sd": {"type": "number", "description": "Standard deviation of the provider effects. Default 0.5."},
+          "seed": {"type": "integer", "description": "Random seed. Default 2026."},
+          "out_path": {"type": "string", "description": "Where to write the .rda. Defaults to a temp file."}
+        },
+        "required": []
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "fit_flr",
+      "description": "Fit Firth bias-reduced logistic regression with one intercept per provider and no global intercept (paraflr::logis_firth). This is the estimation tool: use it when the user wants the covariate effects, the provider effects, or a fitted model — and no hypothesis test for a specific provider.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data_path": {"type": "string", "description": "Absolute path to the data file."},
+          "y_expr": {"type": "string", "description": "R expression for the 0/1 outcome vector, e.g. 'ExampleProviders$Y'. ASCII only, copied verbatim from the data structure you were shown."},
+          "z_expr": {"type": "string", "description": "R expression for the covariate matrix or data.frame, e.g. 'ExampleProviders$Z'. ASCII only."},
+          "id_expr": {"type": "string", "description": "R expression for the provider identifier, one per record, e.g. 'ExampleProviders$ID'. ASCII only."},
+          "threads": {"type": "integer", "description": "OpenMP threads. Default 1. Raise it for large data; the harness clamps it to the machine's core count."},
+          "cutoff": {"type": "integer", "description": "Drop providers with fewer than this many records. Default 0 (keep all)."},
+          "tol": {"type": "number", "description": "Convergence tolerance. Default 1e-5."},
+          "max_iter": {"type": "integer", "description": "Maximum iterations. Default 10000."},
+          "bound": {"type": "number", "description": "Bound on the step size. Default 10."},
+          "backtrack": {"type": "boolean", "description": "Use backtracking line search. Default false."}
+        },
+        "required": ["data_path", "y_expr", "z_expr", "id_expr"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "test_provider",
+      "description": "Test ONE provider's effect against a null (paraflr::test_gamma.single), fitting the model first. Use it whenever the user asks whether a provider is an outlier, flagged, better or worse than average, or significantly different — anything with a p-value attached to a named provider.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data_path": {"type": "string", "description": "Absolute path to the data file."},
+          "y_expr": {"type": "string", "description": "R expression for the 0/1 outcome vector. ASCII only."},
+          "z_expr": {"type": "string", "description": "R expression for the covariate matrix. ASCII only."},
+          "id_expr": {"type": "string", "description": "R expression for the provider identifier. ASCII only."},
+          "provider": {"type": "string", "description": "Which provider to test, exactly as it appears in the id field (e.g. 'P007'). Defaults to the first provider."},
+          "method": {
+            "type": "string",
+            "enum": ["wald", "score", "lrt"],
+            "description": "Test statistic. 'wald' for the standard-error-based test; 'score' when the user asks for a score/Rao test or has small providers; 'lrt' for the likelihood-ratio test. Default 'score'."
+          },
+          "firth": {"type": "boolean", "description": "For method='lrt' only: use the Firth-penalised likelihood. Set true when the user says penalised, Firth, or bias-reduced LRT, or when the provider is small or has few events. Default false."},
+          "null": {
+            "type": "string",
+            "enum": ["median", "value"],
+            "description": "What to test against: 'median' (the population median provider effect, the default and the usual profiling comparison) or 'value' for a fixed number supplied in null_value."
+          },
+          "null_value": {"type": "number", "description": "The fixed null value, used only when null='value'."},
+          "alpha": {"type": "number", "description": "Significance level for the flag. Default 0.05."},
+          "threads": {"type": "integer", "description": "OpenMP threads for the underlying fit. Default 1."}
+        },
+        "required": ["data_path", "y_expr", "z_expr", "id_expr"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "benchmark_threads",
+      "description": "Fit the same model at several OpenMP thread counts and report wall time, speedup, parallel efficiency, and whether the coefficients agree across the runs. Use it when the user asks about speed, scaling, parallel performance, how many cores to use, or how long a fit will take.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data_path": {"type": "string", "description": "Absolute path to the data file."},
+          "y_expr": {"type": "string", "description": "R expression for the 0/1 outcome vector. ASCII only."},
+          "z_expr": {"type": "string", "description": "R expression for the covariate matrix. ASCII only."},
+          "id_expr": {"type": "string", "description": "R expression for the provider identifier. ASCII only."},
+          "threads_list": {
+            "type": "array",
+            "items": {"type": "integer"},
+            "description": "Thread counts to time, e.g. [1, 2, 4, 8]. The first is the speedup baseline. Default [1, 2, 4]."
+          },
+          "repeats": {"type": "integer", "description": "Timed repeats per thread count; the fastest is reported. Default 1, use 3 for a stable number."}
+        },
+        "required": ["data_path", "y_expr", "z_expr", "id_expr"]
+      }
+    }
+  }
+]

@@ -1,0 +1,3 @@
+# The agent itself needs only an OpenAI-compatible client; everything
+# statistical happens in R. Python 3.8+.
+openai>=1.30
