@@ -8,6 +8,7 @@
 #include <omp.h>
 #endif
 #include <iostream>
+#include <iomanip>
 #include <chrono>
 
 // [[Rcpp::plugins(cpp11)]]
@@ -146,7 +147,7 @@ List logis_firth_prov(arma::vec &Y, arma::mat &Z, arma::vec &n_prov, arma::vec g
 
   arma::vec loglik_trace;                 // grows as needed
   double loglik_pen = NA_REAL;
-  double old_pen = NA_REAL;        // previous penalised ℓ*
+  double old_pen = NA_REAL;        // previous penalised l*
   double pen_init = NA_REAL;
 
   if (message) Rcpp::Rcout << "Algorithm ("<<threads<<" cores) ...\n";

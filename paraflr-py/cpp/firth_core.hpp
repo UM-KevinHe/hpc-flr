@@ -1,4 +1,4 @@
-// firth_core.hpp — pure C++ (Armadillo) core for parallel Firth-corrected
+// firth_core.hpp - pure C++ (Armadillo) core for parallel Firth-corrected
 // logistic regression with high-dimensional provider effects.
 #pragma once
 
@@ -9,6 +9,7 @@
 #include <string>
 #include <stdexcept>
 #include <iostream>
+#include <iomanip>
 #include <limits>
 #ifdef _OPENMP
 #include <omp.h>
@@ -159,7 +160,7 @@ inline FirthFit logis_firth_prov(arma::vec &Y, arma::mat &Z, arma::vec &n_prov, 
 
   arma::vec loglik_trace;                 // grows as needed
   double loglik_pen = std::numeric_limits<double>::quiet_NaN();
-  double old_pen = std::numeric_limits<double>::quiet_NaN();        // previous penalised ℓ*
+  double old_pen = std::numeric_limits<double>::quiet_NaN();        // previous penalised l*
   double pen_init = std::numeric_limits<double>::quiet_NaN();
 
   if (message) std::cout << "Algorithm ("<<threads<<" cores) ...\n";

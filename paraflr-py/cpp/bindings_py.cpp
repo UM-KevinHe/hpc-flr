@@ -1,4 +1,4 @@
-// bindings_py.cpp — pybind11 wrapper around the flr:: core. Matrix inputs are
+// bindings_py.cpp   pybind11 wrapper around the flr:: core. Matrix inputs are
 // forced to Fortran (column-major) order to match Armadillo.
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
