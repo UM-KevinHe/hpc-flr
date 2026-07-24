@@ -1,0 +1,89 @@
+name: wheels
+
+# Build the paraflr Python package as self-contained wheels for
+# Windows / macOS / Linux, so users can `pip install` a prebuilt binary
+# instead of compiling from source. cibuildwheel runs the build on real
+# runners of each OS; the wheels bundle their own BLAS/LAPACK, so the end
+# user needs no compiler, no Armadillo, and no BLAS.
+#
+# Trigger it from the Actions tab ("Run workflow"), or by pushing a version
+# tag (`git tag v0.1.0 && git push origin v0.1.0`). A tag push also attaches
+# every wheel to a GitHub Release.
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+jobs:
+  build_wheels:
+    name: wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false     # one OS failing must not cancel the others' wheels
+      matrix:
+        os: [ubuntu-latest, macos-13, macos-14, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.21.3
+        with:
+          package-dir: paraflr-py
+          output-dir: wheelhouse
+        env:
+          CIBW_BUILD: "cp38-* cp39-* cp310-* cp311-* cp312-*"
+          CIBW_SKIP: "*-musllinux* *_i686 pp*"
+
+          # --- Linux: OpenBLAS (BLAS+LAPACK) from the manylinux container's
+          #     package manager; Armadillo headers downloaded (header-only).
+          CIBW_BEFORE_ALL_LINUX: >
+            (yum install -y epel-release || dnf install -y epel-release || true) &&
+            (yum install -y openblas-devel || dnf install -y openblas-devel) &&
+            python {project}/tools/fetch_armadillo.py /deps/arma
+          CIBW_ENVIRONMENT_LINUX: >
+            PARAFLR_ARMADILLO_INCLUDE=/deps/arma/include
+            PARAFLR_BLAS_LIBS=openblas
+
+          # --- macOS: Accelerate provides BLAS/LAPACK; download Armadillo.
+          CIBW_ARCHS_MACOS: "x86_64 arm64"
+          CIBW_BEFORE_ALL_MACOS: >
+            python {project}/tools/fetch_armadillo.py /tmp/deps/arma
+          CIBW_ENVIRONMENT_MACOS: >
+            PARAFLR_ARMADILLO_INCLUDE=/tmp/deps/arma/include
+            PARAFLR_BLAS_FRAMEWORK=Accelerate
+
+          # --- Windows: download prebuilt OpenBLAS + Armadillo headers.
+          #     delvewheel bundles the OpenBLAS DLL into the wheel.
+          CIBW_BEFORE_ALL_WINDOWS: >
+            python {project}\tools\fetch_armadillo.py C:\deps\arma &&
+            python {project}\tools\fetch_openblas_windows.py C:\deps\openblas
+          CIBW_ENVIRONMENT_WINDOWS: >
+            PARAFLR_ARMADILLO_INCLUDE=C:\deps\arma\include
+            PARAFLR_BLAS_INCLUDE=C:\deps\openblas\include
+            PARAFLR_BLAS_LIBDIR=C:\deps\openblas\lib
+            PARAFLR_BLAS_LIBS=libopenblas
+          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >
+            delvewheel repair --add-path C:\deps\openblas\bin
+            -w {dest_dir} {wheel}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.os }}
+          path: wheelhouse/*.whl
+
+  release:
+    name: attach wheels to the release
+    needs: build_wheels
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.whl

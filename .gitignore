@@ -17,6 +17,8 @@ paraflr/src/*.dll
 *.o
 build/
 *.egg-info/
+paraflr-py/build_deps/
+wheelhouse/
 
 # Agent (Python)
 __pycache__/

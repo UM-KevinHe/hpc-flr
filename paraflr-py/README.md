@@ -22,10 +22,25 @@ Python ≥ 3.8 and NumPy. The build uses `pybind11` (pulled in automatically).
 
 ## Install
 
-From the repository root:
+### Prebuilt wheel (no compiler needed)
+
+If a release provides a wheel for your platform, `pip` picks it automatically —
+no C++ toolchain, no Armadillo, no BLAS. Wheels are built for Windows, macOS
+(Intel + Apple Silicon), and Linux by the `wheels` GitHub Actions workflow and
+attached to each GitHub Release:
 
 ```bash
-pip install ./paraflr-py
+pip install paraflr --no-index --find-links https://github.com/UM-KevinHe/hpc-flr/releases/latest
+```
+
+(or download the matching `.whl` from the Releases page and `pip install` it).
+
+### From source
+
+Needs a C++ toolchain, Armadillo headers, and a BLAS/LAPACK (see Requirements):
+
+```bash
+pip install ./paraflr-py          # from the repository root
 ```
 
 or from this directory: `pip install .`. To develop in place:
